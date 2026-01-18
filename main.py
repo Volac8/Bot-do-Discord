@@ -45,43 +45,6 @@ async def on_ready():
         if dt > datetime.now():
             agendar_notificacoes(dt, item["canal_id"], item["cargo_id"], item["descricao"], item["duracao_min"])
 
-@bot.event
-async def on_message(message):
-    # Ignora mensagens de bots
-    if message.author.bot:
-        return
-
-    content = message.content.lower()  # atributo, e já em lowercase pra facilitar
-    # Comando “amoleça meu pinto”
-    if content.startswith("jarvis, amoleça meu pinto"):
-        t = random.randint(1, 2)
-        if t == 1:
-            await message.channel.send("Sinto muito senhor, objeto rígido demais")
-        else:
-            await message.channel.send("Pinto amolecido com sucesso, você agora pode caminhar normalmente")
-        return  # não processa outros comandos nesta mensagem
-
-    # Comando “desgoze minhas calças”
-    if content.startswith("jarvis, desgoze minhas calças"):
-        t = random.randint(1, 2)
-        if t == 1:
-            await message.channel.send("Não foi possível desgozar suas calças, excesso de líquidos")
-        else:
-            await message.channel.send("Calça desgozada com sucesso senhor, aproveite suas calças limpas")
-        return
-
-    if content.startswith("jarvis, here come the sun"):
-        
-            await message.channel.send("Turururu")
-
- 
-
-    # Muito importante: sem isso, seus @bot.command* não vão disparar:
-    await bot.process_commands(message)
-
-    # Muito importante: sem isso, seus @bot.command* não vão disparar:
-    await bot.process_commands(message)
-
 conversa = []
 
 lembretes = []
@@ -214,9 +177,6 @@ async def avaliar_duelo(channel, duelistas, fala1, fala2, modalidade):
     except Exception as e:
         await channel.send("⚠️ Ocorreu um erro ao tentar avaliar o duelo. Tente novamente mais tarde.")
         print(f"[ERRO] avaliar_duelo: {e}")
-
-
-
 
 @bot.command()
 async def agendar(ctx):
