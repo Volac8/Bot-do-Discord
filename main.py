@@ -178,9 +178,9 @@ async def desgoze_minhas_calças(ctx, *, args):
     await ctx.send(f"AAAAAAAAAAaaaAaAaaaaAAAAAaaa - {args}")
     
     if t == 1:
-        await ctx.send("Não foi possível desgozar suas calças devido>
+        await ctx.send("Não foi possível desgozar suas calças devido ao excesso de líquidos")
     else:
-        await ctx.send("Suas calças foram desgozadas com sucesso sen>
+        await ctx.send("Suas calças foram desgozadas com sucesso senhor. Aproveite suas calças limpas")
 
 @bot.command(name="amoleça")
 async def amoleça_meu_pinto(ctx, *, args):
@@ -188,7 +188,7 @@ async def amoleça_meu_pinto(ctx, *, args):
     if t == 1:
         await ctx.send("Sinto muito senhor, objeto rígido demais.")
     else:
-        await cyx.send("Amolecimento concluído, você pode voltar a c>
+        await cyx.send("Amolecimento concluído, você pode voltar a caminhar normalmente")
 
 @bot.command(name="here comes")
 async def here_comes_the_sun(cyx, *, args):
