@@ -90,15 +90,9 @@ async def on_message(message):
     await bot.process_commands(message)  # Necessário para não bloquear outros comandos
 
 
-@bot.event
-async def on_message(message):
-    if message.author == bot.user:
-        return
-
-    if message.content.lower().startswith("eu exijo um duelo"):
-        await iniciar_duelo(message)
-
-    await bot.process_commands(message)  # importante para outros comandos funcionarem
+@bot.command(name="eu exijo um")
+async def eu_exijo_um_duelo(ctx, *, args):
+    await iniciar_duelo(ctx)
 
 async def iniciar_duelo(message):
     await message.channel.send("⚔️ Quem são os dois participantes do duelo? Mencione ambos com @.")
