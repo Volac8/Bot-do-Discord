@@ -178,6 +178,28 @@ async def avaliar_duelo(channel, duelistas, fala1, fala2, modalidade):
         await channel.send("⚠️ Ocorreu um erro ao tentar avaliar o duelo. Tente novamente mais tarde.")
         print(f"[ERRO] avaliar_duelo: {e}")
 
+@bot.command(name="desgoze")
+async def desgoze_minhas_calças(ctx, *, args):
+    t = random.randint(1, 2)
+    await ctx.send(f"AAAAAAAAAAaaaAaAaaaaAAAAAaaa - {args}")
+    
+    if t == 1:
+        await ctx.send("Não foi possível desgozar suas calças devido>
+    else:
+        await ctx.send("Suas calças foram desgozadas com sucesso sen>
+
+@bot.command(name="amoleça")
+async def amoleça_meu_pinto(ctx, *, args):
+    t = random.randint(1, 2)
+    if t == 1:
+        await ctx.send("Sinto muito senhor, objeto rígido demais.")
+    else:
+        await cyx.send("Amolecimento concluído, você pode voltar a c>
+
+@bot.command(name="here comes")
+async def here_comes_the_sun(cyx, *, args):
+    await ctx.send("Turururu")
+
 @bot.command()
 async def agendar(ctx):
     await ctx.send("📅 Envie a data e hora do RPG no formato `DD/MM/AAAA HH:MM`:")
