@@ -511,6 +511,7 @@ async def defender(ctx, quantidade: int = 50):
     """
     # Filtra apenas as mensagens de usuários (não bots) e ignora o próprio comando
     canal = ctx.channel
+    reu = ctx.author
     mensagens = []
     async for msg in canal.history(limit=quantidade + 10):  # pega um pouco a mais para filtrar
         if msg.author.bot:
@@ -527,10 +528,10 @@ async def defender(ctx, quantidade: int = 50):
     conversa_texto = "\n".join(mensagens)
 
     prompt = (
-        "Você é um assistente que sempre defende a posição do “Jarvis Bot” "
+        f"Você é um assistente que sempre defende a posição do “{reu}” "
         "em qualquer debate. Abaixo está o histórico recente de uma conversa. "
         "Baseado nisso, produza um texto argumentativo coerente e persuasivo, "
-        "defendendo o ponto de vista do Jarvis Bot frente aos argumentos apresentados.\n\n"
+        f"defendendo o ponto de vista do {reu} frente aos argumentos apresentados.\n\n"
         f"{conversa_texto}\n\n"
         "Resposta:"
     )
@@ -543,7 +544,7 @@ async def defender(ctx, quantidade: int = 50):
                 {"role": "user", "content": prompt}
             ],
             temperature=0.8,
-            max_tokens=300
+            max_tokens=200
         )
         resposta = resp.choices[0].message.content.strip()
         # Envia em um embed para ficar mais elegante
@@ -555,9 +556,7 @@ async def defender(ctx, quantidade: int = 50):
         await ctx.send(embed=embed)
 
     except Exception as e:
-
-
-        await        print(f"[ERRO defender] {e}")
+        await print(f"[ERRO defender] {e}")
         await ctx.send("puta que pariu, ai tbm nem eu consigo te defender")
 
 @bot.command(name="rankduelos")
