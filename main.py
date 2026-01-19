@@ -1,18 +1,21 @@
 import discord, json, os, asyncio, random, openai
-import importlib, comandos_personalizados
 from discord.ext import commands
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
+from discord.ext import commands
 
 intents = discord.Intents.default()
 intents.message_content = True
 intents.guilds = True
 intents.guild_messages = True
 
-bot = commands.Bot(command_prefix="Jarvis, ", intents=intents)
+class Jarvis(commands.Bot):
+    async def setup_hook(self):
+        await self.load_extension("comandos_personalizados")
+        await self.load_extension("evolucao")
+bot = Jarvis(command_prefix="Jarvis, ", intents=intents)
 
-# Cria e inicia o agendador corretamente
 scheduler = AsyncIOScheduler()
 
 ARQUIVO = "Bot do Discord/agenda_rpg.json"
@@ -35,7 +38,7 @@ def salvar_agenda():
 
 @bot.event
 async def on_ready():
-    importlib.reload(comandos_personalizados)
+    await bot.reload_extension("comandos_personalizados")
     scheduler.start()
     print(f"🤖 Bot online como {bot.user}")
 
@@ -90,7 +93,7 @@ async def on_message(message):
     await bot.process_commands(message)  # Necessário para não bloquear outros comandos
 
 
-@bot.command(name="eu exijo um")
+@bot.command(name="eu")
 async def eu_exijo_um_duelo(ctx, *, args):
     await iniciar_duelo(ctx)
 
@@ -176,7 +179,7 @@ async def avaliar_duelo(channel, duelistas, fala1, fala2, modalidade):
 async def desgoze_minhas_calças(ctx, *, args):
     t = random.randint(1, 2)
     await ctx.send(f"AAAAAAAAAAaaaAaAaaaaAAAAAaaa - {args}")
-    
+
     if t == 1:
         await ctx.send("Não foi possível desgozar suas calças devido ao excesso de líquidos")
     else:
@@ -188,9 +191,9 @@ async def amoleça_meu_pinto(ctx, *, args):
     if t == 1:
         await ctx.send("Sinto muito senhor, objeto rígido demais.")
     else:
-        await cyx.send("Amolecimento concluído, você pode voltar a caminhar normalmente")
+        await ctx.send("Amolecimento concluído, você pode voltar a caminhar normalmente")
 
-@bot.command(name="here comes")
+@bot.command(name="here")
 async def here_comes_the_sun(cyx, *, args):
     await ctx.send("Turururu")
 
@@ -215,7 +218,7 @@ async def agendar(ctx):
                     f"⚠️ Conflito de horário! Este RPG se sobrepõe ao agendado em `{key}`: **{item['descricao']}**"
                 )
                 return
-        
+
         # Antes de seguir, perguntamos duração para já calcular o intervalo completo
         await ctx.send("⏱️ Qual a duração da sessão? Formato `HH:MM`")
         msg_dur = await bot.wait_for("message", timeout=30, check=check)
@@ -358,7 +361,7 @@ async def xingue(ctx, membro: discord.Member):
         "O mundo tem oito bilhões de pessoas e de todas essas você é a razão da legalização do aborto",
         "SEU FILHO DA PUTA,VOU COMER SEU CU.ARROMBADO DO CARALHO,SUA MÃE ALUGA A BUCETA PRA COMPRAR FIXADOR DE DENTADURA PRO SEU PAI, AQUELE CORNO BROXA. CHIFRUDO, VOU ENFIAR MEU BRAÇO NO SEU ÂNUS E ARRANCAR SEU INTESTINO. LOGO DEPOIS VOU ENFORCAR SUA AVÓ COM ELE, AQUELA VELHA BISCATE QUE FAZ CROCHÊ PRA FORA EM TROCA DE PICA. SUAS TIAS TÊM PÊLO NO DENTE E SUA IRMÃ TEM POLENGUINHO NA VIRILHA, SEU GRANDE FILHO DA PRÊULA. SUA MÃE DAVA LEITE DA CABEÇA DO PAU DO SEU PAI PRA VOCÊ BEBER, FILHO DA PUTA. ISSO MESMO, VOCÊ TOMAVA MAMADEIRA DE PORRA DESDE CRIANÇA. POR ISSO É O RETARDADO MENTAL QUE É HOJE, SEU ZÉ BEBEDOR DE SUCO DE CARALHO. O PADRE TE BENZEU COM ÁGUA PARADA, HOJE VOCÊ SOFRE OS EFEITOS RETARDADOS DO AEDES AEGYPT QUE SE ALOJA DENTRO DO SEU OUVIDO, SEU MONTE DE ESTERCO. SEU AVÔ ARROMBADO USA FRALDA E TE OBRIGA A LIMPAR OS COCOZUDOS DELE COM UMA COLHER DE DANONINHO, SEU CAPACHO DO CARALHO. SUA MÃE TE FAZ DORMIR COM O REX, AQUELE CHIUAUA FILHO DA PUTA E CHEIO DE SARNA. E DURANTE A MADRUGADA O REX ABUSA SEXUALMENTE DE VOCÊ, ATÓLA A PATINHA DENTRO DESSE SEU CU PELÚDO, SEU FRACASSADO. LEMBRA DA JANDIRA, AQUELA SUA PRIMA MONOTETA ? POIS É, ENFIEI UM TACO DE BASEBALL NO CU DELA. A MÃE DELA DEU O FLAGRANTE NA GENTE E AO INVÉS DE FICAR BRAVA, PEDIU O TACO EMPRESTADO. VADIA DO CARALHO ESSA SUA TIA, SÓ PODE TER APRENDIDO COM SUA MÃE, AQUELA BISCATE. QUE ALIÁS, CONTINUA CHUPANDO O CARALHO DO ZÉ DO PACOTE, O TRAFICANTE QUE MORA AÍ DO LADO DA SUA CASA DE BARRO, SEU FILHO DUMA MACONHEIRA VAGABUNDA",
         "Torcedor do Vasca da Gama"
-    ]    
+    ]
 
     frase_escolhida = random.choice(frases)
     await ctx.send(f"{membro.mention} – {frase_escolhida}")
@@ -416,7 +419,7 @@ async def anote(ctx):
                 trigger="cron", hour=hora.hour, minute=hora.minute
             )
             await ctx.send("✅ Ta feito chefia")
-        
+
         elif info.startswith("semanal "):
             partes = info.split(" ")
             dia_semana = partes[1]
@@ -434,7 +437,7 @@ async def anote(ctx):
                 trigger="cron", day_of_week=dias[dia_semana], hour=hora.hour, minute=hora.minute
             )
             await ctx.send("✅ Ta feito chefia")
-        
+
         else:
             data = datetime.strptime(info, "%d/%m/%Y %H:%M")
             scheduler.add_job(
@@ -487,7 +490,7 @@ async def defina(ctx, *, termo: str):
         "**Fonte: Dicionario**",
         "**Fonte: Aurerio**",
         "**Fonte: **"
-        ]    
+        ]
 
         fonte_escolhida = random.choice(text)
 
@@ -510,7 +513,7 @@ async def defender(ctx, quantidade: int = 50):
     canal = ctx.channel
     mensagens = []
     async for msg in canal.history(limit=quantidade + 10):  # pega um pouco a mais para filtrar
-        if msg.author.bot: 
+        if msg.author.bot:
             continue
         if msg.id == ctx.message.id:
             continue
@@ -552,65 +555,10 @@ async def defender(ctx, quantidade: int = 50):
         await ctx.send(embed=embed)
 
     except Exception as e:
-        print(f"[ERRO defender] {e}")
+
+
+        await        print(f"[ERRO defender] {e}")
         await ctx.send("puta que pariu, ai tbm nem eu consigo te defender")
-
-@bot.command(name="evolua")
-async def criarcomando(ctx):
-    if not usuario_tem_permissao(ctx):
-        return await ctx.send("Quem você acha que é para me mandar evoluir?")
-
-    # 1) Pergunta o nome do comando
-    await ctx.send("Claro meu senhor, Qual será o **nome** do novo comando?")
-
-    def check_own(m): return m.author == ctx.author and m.channel == ctx.channel
-    try:
-        nome_msg = await bot.wait_for("message", timeout=60, check=check_own)
-        nome_cmd = nome_msg.content.strip().lower()
-
-        # 2) Pergunta o que o comando deve fazer
-        await ctx.send(f" O que o comando `{nome_cmd}` deve fazer? Descreva em detalhes.")
-        desc_msg = await bot.wait_for("message", timeout=300, check=check_own)
-        descricao = desc_msg.content.strip()
-
-        await ctx.send("**Sons de evolução**")
-
-        # 3) Envia prompt ao GPT
-        prompt = (
-            f"Escreva apenas a definição de uma função Python para discord.py que "
-            f"registre um comando chamado `{nome_cmd}`. "
-            f"Use o decorator @bot.command(), async def, e implemente: {descricao}. "
-            f"Escreva apenas o código, sem adições"
-        )
-        resp = openai.ChatCompletion.create(
-            model="gpt-4.1-nano",
-            messages=[
-                {"role":"system","content":"Você gera apenas funções de comando para discord.py."},
-                {"role":"user","content":prompt}
-            ],
-            temperature=0.8,
-            max_tokens=1000
-        )
-        codigo = resp.choices[0].message.content
-
-        # 4) Validação simples: impede imports
-        if any(x in codigo for x in ["import os", "import sys", "exec(", "eval("]):
-            return await ctx.send("Infelizmente esses comandos vão além da minha capacidade atual, preciso de mais *Imports*. Cancelando.")
-
-        # 5) Escreve no arquivo de comandos personalizados
-        arq = "comandos_personalizados.py"
-        with open(arq, "a", encoding="utf-8") as f:
-            f.write("\n\n" + codigo)
-
-        await ctx.send(f"Sua ordem é absoluta senhor, O Comando: `{nome_cmd}` foi criado e carregado com sucesso")
-
-        importlib.reload(comandos_personalizados)
-
-    except asyncio.TimeoutError:
-        await ctx.send("⏰ Tempo esgotado.")
-    except Exception as e:
-        await ctx.send("O Corpo falhou na adaptação")
-        print(f"[ERRO criarcomando] {e}")
 
 @bot.command(name="rankduelos")
 async def rank_duelos(ctx):
@@ -620,7 +568,7 @@ async def rank_duelos(ctx):
         return
 
     ranking = sorted(dados.items(), key=lambda item: item[1]["vitorias"], reverse=True)
-    
+
     embed = discord.Embed(title="🏆 Ranking de Duelistas", color=discord.Color.gold())
 
     for i, (user_id, info) in enumerate(ranking, start=1):
