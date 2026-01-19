@@ -6,7 +6,7 @@ import re
 import ast
 
 def comando_ja_existe(nome):
-    with open("comandos_personalizados.py", "r", encoding="utf-8") as f:
+    with open("comandos.py", "r", encoding="utf-8") as f:
         return f"async def {nome}(" in f.read()
 
 def validar_ast_comando(codigo: str):
@@ -55,9 +55,39 @@ def corrigir_assinatura(codigo: str):
 
     return "\n".join(novas)
 
+def limpar_markdown(codigo: str):
+    """Remove blocos de código markdown."""
+    # Remove blocos com ``` python ou ```
+    codigo = re.sub(r'^```python\n', '', codigo, flags=re.MULTILINE)
+    codigo = re.sub(r'^```\n', '', codigo, flags=re.MULTILINE)
+    codigo = re.sub(r'\n```$', '', codigo, flags=re.MULTILINE)
+    return codigo.strip()
+
 def identar_codigo(codigo:str, espacos=4):
     linhas = codigo.splitlines()
     return "\n".join((" " * espacos + l if l.strip() else l) for l in linhas)
+
+def adicionar_comando_seguro(arquivo: str, codigo: str):
+    """Adiciona código ao arquivo de forma segura, validando o resultado."""
+    with open(arquivo, "r", encoding="utf-8") as f:
+        conteudo_atual = f.read()
+    
+    # Garante que o arquivo termina com newline
+    if conteudo_atual and not conteudo_atual.endswith("\n"):
+        conteudo_atual += "\n"
+    
+    # Adiciona o novo código com espaçamento
+    conteudo_novo = conteudo_atual + "\n\n" + codigo
+    
+    # Valida a sintaxe do arquivo resultante
+    try:
+        ast.parse(conteudo_novo)
+    except SyntaxError as e:
+        raise ValueError(f"Sintaxe inválida no arquivo após adicionar código: {e}") from e
+    
+    # Escreve de volta
+    with open(arquivo, "w", encoding="utf-8") as f:
+        f.write(conteudo_novo)
 
 class Evolucao(commands.Cog):
     def __init__(self, bot):
@@ -82,32 +112,39 @@ class Evolucao(commands.Cog):
 
         await ctx.send("**Sons de evolução**")
         prompt = (
-            f"Escreva apenas o método de uma Cog discord.py. "
-            f"Use @commands.command(), async def, e identação de 4 espaços. "
-            f"O método deve receber self e ctx. "
-            f"Nome do comando: {nome_cmd}. "
-            f"O método deve implementar: {descricao}. "
-            f"Não escreva imports, classes, setup, explicações, adições ou texto extra."
+            f"Gere APENAS o código Python, SEM explicações, SEM markdown, SEM blocos de código.\n"
+            f"Regras obrigatórias:\n"
+            f"1. NÃO use ``` ou blocos de código\n"
+            f"2. NÃO use imports\n"
+            f"3. Use EXATAMENTE 4 espaços de indentação\n"
+            f"4. Escreva um método async de uma Cog discord.py\n"
+            f"5. Use @commands.command(name=\"{nome_cmd}\")\n"
+            f"6. O método DEVE receber (self, ctx) como argumentos\n"
+            f"\n"
+            f"Comando: {nome_cmd}\n"
+            f"Funcionalidade: {descricao}\n"
+            f"\n"
+            f"Responda APENAS com o código, começando com @commands.command"
         )
 
         resp = openai.ChatCompletion.create(
             model="gpt-4.1-nano",
             messages=[{"role": "user", "content": prompt}],
-            temperature=0.8,
+            temperature=0.7,
             max_tokens=800
         )
 
         codigo = resp.choices[0].message.content
+        codigo = limpar_markdown(codigo)
         codigo = corrigir_assinatura(codigo)
-        validar_ast_comando(codigo)
-        codigo = identar_codigo(codigo)
+        #validar_ast_comando(codigo)
 
-        with open("comandos_personalizados.py", "a", encoding="utf-8") as f:
-            f.write("\n\n" + codigo)
+        adicionar_comando_seguro("comandos.py", codigo)
 
         try:
-            await self.bot.reload_extension("comandos_personalizados")
+            await self.bot.reload_extension("comandos")
             await ctx.send(f"Suas ordens são absolutas senhor, o comando `{nome_cmd}` foi criado e carregado com sucesso.")
+            await ctx.send("Código gerado:\n```python\n" + identar_codigo(codigo) + "\n```")
         except Exception as e:
             await ctx.send("O corpo falhou na adaptação.")
             print(e)
@@ -116,7 +153,7 @@ class Evolucao(commands.Cog):
     async def remover_comando(self, ctx, nome: str):
         nome = nome.lower()
 
-        arquivo = "comandos_personalizados.py"
+        arquivo = "comandos.py"
 
         with open(arquivo, "r", encoding="utf-8") as f:
             linhas = f.readlines()
@@ -129,15 +166,15 @@ class Evolucao(commands.Cog):
             linha = linhas[i]
             stripped = linha.lstrip()
 
-        # Detecta async def do comando
+            # Detecta async def do comando
             if stripped.startswith(f"async def {nome}("):
                 removido = True
 
-            # Remove decorator imediatamente acima, se existir
+                # Remove decorator imediatamente acima, se existir
                 if novo and novo[-1].lstrip().startswith("@commands.command"):
                     novo.pop()
 
-            # Pula todo o bloco do método
+                # Pula todo o bloco do método
                 indent = len(linha) - len(stripped)
                 i += 1
                 while i < len(linhas):
@@ -156,10 +193,8 @@ class Evolucao(commands.Cog):
         with open(arquivo, "w", encoding="utf-8") as f:
             f.writelines(novo)
 
-        await self.bot.reload_extension("comandos_personalizados")
+        await self.bot.reload_extension("comandos")
         await ctx.send(f"O comando `{nome}` foi reduzido a uma ameba com sucesso.")
 
 async def setup(bot):
     await bot.add_cog(Evolucao(bot))
-
-0
