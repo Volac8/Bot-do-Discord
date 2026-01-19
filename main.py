@@ -20,7 +20,7 @@ scheduler = AsyncIOScheduler()
 
 ARQUIVO = "Bot do Discord/agenda_rpg.json"
 
-CARGO_PERMITIDO_ID = [1402824050199232566, 1398015167249387560]
+CARGO_PERMITIDO_ID = [1402824050199232566, 1398015167249387560, 561686139581497375]
 
 def usuario_tem_permissao(ctx):
     return any(c.id in CARGO_PERMITIDO_ID for c in ctx.author.roles)
