@@ -1,9 +1,23 @@
+from discord.ext import commands
+import setup, config
+
+intents = discord.Intents.default()
+intents.message_content = True
+intents.guilds = True
+intents.guild_messages = True
+
+bot = commands.Bot(command_prefix="Jarvis, ", intents=intents)
+
+setup.setup_bot(bot)
+
+bot.run(config.TOKEN)
+
+"""
 import discord, json, os, asyncio, random, openai
 from discord.ext import commands
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
-from discord.ext import commands
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -606,3 +620,4 @@ def agendar_notificacoes(data, canal_id, cargo_id, descricao, dur_min):
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 bot.run(os.getenv('DISCORD_TOKEN'))
+"""
