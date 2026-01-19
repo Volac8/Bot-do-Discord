@@ -26,6 +26,6 @@ class ComandosPersonalizados(commands.Cog):
 
     @commands.command()
     async def musgocomer(self, ctx):
-        await ctx.send(":musgocomer: nham nham")
+        await ctx.send(":musgocomer:1386755463374438560 nham nham")
 
 
