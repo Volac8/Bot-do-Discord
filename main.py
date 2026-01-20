@@ -25,7 +25,7 @@ class Jarvis(commands.Bot):
         """Executado antes do bot ficar online"""
         await setup.setup_bot(self)
 
-bot = Jarvis(command_prefix="Jarvis teste, ", intents=intents)
+bot = Jarvis(command_prefix="Jarvis, ", intents=intents)
 
 openai.api_key = openai_api_key
 bot.run(discord_token)
