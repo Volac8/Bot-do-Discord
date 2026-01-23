@@ -5,6 +5,11 @@ import openai
 import re
 import ast
 
+ID_PERMITIDO = [442462428748447755, 561686139581497375, 337276446911496192, 622645792221691905, 327258575858565120]
+
+def usuario_tem_permissao(ctx):
+    return any(c.id in CARGO_PERMITIDO_ID for c in ctx.author.id)
+
 def comando_ja_existe(nome):
     with open("comandos.py", "r", encoding="utf-8") as f:
         return f"async def {nome}(" in f.read()
@@ -96,6 +101,9 @@ class Evolucao(commands.Cog):
     @commands.command(name="evolua")
     async def criarcomando(self, ctx):
 
+        if not usuario_tem_permissao(ctx):
+            return await ctx.send("Quem você acha que é para mandar em mim?")
+
         def check(m):
             return m.author == ctx.author and m.channel == ctx.channel
 
@@ -151,8 +159,11 @@ class Evolucao(commands.Cog):
 
     @commands.command(name="desevolua")
     async def remover_comando(self, ctx, nome: str):
-        nome = nome.lower()
 
+        if not usuario_tem_permissao(ctx):
+            return await ctx.send("Quem você acha que é para mandar em mim?")
+            
+        nome = nome.lower()
         arquivo = "comandos.py"
 
         with open(arquivo, "r", encoding="utf-8") as f:
