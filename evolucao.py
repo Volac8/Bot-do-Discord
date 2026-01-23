@@ -8,7 +8,7 @@ import ast
 ID_PERMITIDO = [442462428748447755, 561686139581497375, 337276446911496192, 622645792221691905, 327258575858565120]
 
 def usuario_tem_permissao(ctx):
-    return any(c.id in CARGO_PERMITIDO_ID for c in ctx.author.id)
+    return any(c.id in ID_PERMITIDO for c in ctx.author.id)
 
 def comando_ja_existe(nome):
     with open("comandos.py", "r", encoding="utf-8") as f:
