@@ -92,7 +92,7 @@ class ComandosPersonalizados(commands.Cog):
 
         try:
             resposta = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
+                model="gpt-5-mini",
                 messages=[
                     {"role": "system", "content": "Você é um árbitro experiente em duelos criativos."},
                     {"role": "user", "content": prompt}
@@ -216,7 +216,7 @@ class ComandosPersonalizados(commands.Cog):
 
         try:
             response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
+                model="gpt-5-mini",
                 messages=[
                     {"role": "system", "content": "Você é um dicionário em português."},
                     {"role": "user", "content": prompt}
@@ -279,7 +279,7 @@ class ComandosPersonalizados(commands.Cog):
 
         try:
             resp = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
+                model="gpt-5-mini",
                 messages=[
                     {"role": "system", "content": "Você defende sempre o usuário."},
                     {"role": "user", "content": prompt}
@@ -315,7 +315,7 @@ class ComandosPersonalizados(commands.Cog):
 
         try:
             resposta = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
+                model="gpt-5-mini",
                 messages=[
                     {"role": "system", "content": "Você é um assistente que resume conversas do Discord de forma clara e breve."},
                     {"role": "user", "content": prompt}
@@ -521,11 +521,6 @@ class ComandosPersonalizados(commands.Cog):
         except Exception as e:
             await ctx.send("❌ Erro ao configurar lembrete. Verifique o formato e tente novamente.")
             print(f"[ERRO] anote: {e}")
-
-
-
-
-
 
     @commands.command(name="fazueli")
     async def fazueli(self, ctx):
