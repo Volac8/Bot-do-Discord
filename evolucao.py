@@ -136,7 +136,7 @@ class Evolucao(commands.Cog):
         )
 
         resp = openai.ChatCompletion.create(
-            model="gpt-4.1-nano",
+            model="gpt-5-mini",
             messages=[{"role": "user", "content": prompt}],
             temperature=0.7,
             max_tokens=800
