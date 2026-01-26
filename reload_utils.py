@@ -3,7 +3,6 @@ import importlib, sys
 # Módulos que podem ser recarregados (ordem importa!)
 RECARREGAVEIS = [
     "utils",          # Deve vir primeiro pois é importado por outros
-    "core",
     "setup",
     "reload_utils"
 ]

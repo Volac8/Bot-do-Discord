@@ -1,22 +1,7 @@
 from discord.ext import commands
 
-async def setup_bot(bot: commands.Bot):
-    from core import register_events
-
-    register_events(bot)
-    register_reload_command(bot)
-
-    extensoes = [
-        "comandos",
-        "evolucao"
-    ]
-
-    for ext in extensoes:
-        if ext not in bot.extensions:
-            await bot.load_extension(ext)
-
 def register_reload_command(bot):
-    @bot.command(name="recarregue")
+    @bot.command(name="recarregue", aliases=["reload", "reloadall", "recarregar"])
     @commands.is_owner()
     async def reloadall(ctx):
         """

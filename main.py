@@ -1,19 +1,6 @@
+from datetime import datetime
 from discord.ext import commands
-import openai, setup, discord, os, dotenv
-from pathlib import Path
-
-# ✅ Carrega .env ANTES de tudo
-dotenv_path = Path(__file__).parent / ".env"
-dotenv.load_dotenv(dotenv_path)
-
-# ✅ Verifica se as variáveis foram carregadas
-discord_token = os.getenv("DISCORD_TOKEN")
-openai_api_key = os.getenv("OPENAI_API_KEY")
-
-if not discord_token:
-    raise ValueError("❌ DISCORD_TOKEN não encontrado em .env!")
-if not openai_api_key:
-    raise ValueError("❌ OPENAI_API_KEY não encontrado em .env!")
+import openai, discord, utils.utils as utils, os
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -21,11 +8,46 @@ intents.guilds = True
 intents.guild_messages = True
 
 class Jarvis(commands.Bot):
-    async def setup_hook(self):
-        """Executado antes do bot ficar online"""
-        await setup.setup_bot(self)
+    def __init__(self):
+        """initialize bot object"""
+        self.config = utils.get_config()
+        super().__init__(
+            command_prefix = commands.when_mentioned_or(*self.config["prefixes"]),
+            case_insensitive = True,
+            intents = discord.Intents.all()
+        )
+        self.remove_command("help")
+        self.load_extensions()
 
-bot = Jarvis(command_prefix="Jarvis, ", intents=intents)
+    def load_extensions(self):
+        """at initialization, load all cogs"""
+        for file in os.listdir("./cogs"):
+            if file.endswith(".py"):
+                self.load_extension(f"cogs.{file[:-3]}") # type: ignore
 
-openai.api_key = openai_api_key
-bot.run(discord_token)
+    async def is_owner(self, user:discord.abc.User):
+        """override `is_owner` check so all managers can use `jsk`"""
+        if user.id in self.config["managers"]:
+            return True  # managers have owner permissions
+
+        return await super().is_owner(user)
+
+    async def on_ready(self):
+        from utils.utils import init_scheduler, carregar_agenda, agendar_notificacoes
+        print(f"🤖 Bot online como {self.user}")
+        
+        init_scheduler()
+        agenda_rpg = carregar_agenda()
+        for chave, item in agenda_rpg.items():
+            dt = datetime.strptime(chave, "%d/%m/%Y %H:%M")
+            if dt > datetime.now():
+                agendar_notificacoes(bot, dt, item["canal_id"], item["cargo_id"], item["descricao"], item["duracao_min"])
+        
+        
+        activity = discord.Activity(type=discord.ActivityType.watching, name=f"{self.config['prefixes'][0]}help")
+        await self.change_presence(status=discord.Status.dnd, activity=activity)
+
+if __name__ == "__main__":
+    bot = Jarvis()
+    openai.api_key = bot.config["api_key"]
+    bot.run(bot.config["token"])

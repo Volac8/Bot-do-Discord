@@ -1,8 +1,7 @@
-import json
-import os
-from datetime import datetime, timedelta
+import json, os, discord, dotenv
+from datetime import timedelta
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-import discord
+from pathlib import Path
 
 # Variáveis globais
 conversa = []
@@ -52,6 +51,24 @@ def registrar_vitoria(vencedor_id, vencedor_nome):
 
 # ===== FUNÇÕES DE CONVERSA =====
 
+def register_events(bot):
+
+    @bot.event
+    async def on_message(message):
+        """Registra todas as mensagens e processa comandos"""
+        if message.author.bot:
+            return
+
+        # Adiciona a mensagem ao histórico
+        adicionar_mensagem(
+            autor=message.author.name,
+            conteudo=message.content,
+            timestamp=message.created_at.strftime("%Y-%m-%d %H:%M:%S")
+        )
+
+        # Necessário para não bloquear outros comandos
+        await bot.process_commands(message)
+
 def adicionar_mensagem(autor, conteudo, timestamp):
     global conversa
     conversa.append({
@@ -96,3 +113,17 @@ def init_scheduler():
 
 def get_scheduler():
     return scheduler
+
+# ===== FUNÇÕES DE CONFIGURAÇÃO =====
+
+def get_config():
+    """return dict of configuration data"""
+    dotenv_path = Path(__file__).parent / ".env"
+    dotenv.load_dotenv(dotenv_path)
+    
+    return {
+        "token": os.getenv('DISCORD_TOKEN'),
+        "api_key": os.getenv('OPENAI_API_KEY'),
+        "managers": (703746149722357770, 588720566370828307),  # IDs of manager accounts
+        "prefixes": ["Jarvis2, ", "jarvis2, "]
+    }

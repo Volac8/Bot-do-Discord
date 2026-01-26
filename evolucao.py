@@ -1,9 +1,5 @@
 from discord.ext import commands
-import asyncio
-import importlib
-import openai
-import re
-import ast
+import openai, re, ast
 
 ID_PERMITIDO = [442462428748447755, 561686139581497375, 337276446911496192, 622645792221691905, 327258575858565120]
 
@@ -142,7 +138,7 @@ class Evolucao(commands.Cog):
             max_tokens=800
         )
 
-        codigo = resp.choices[0].message.content
+        codigo = resp.choices[0].message.content # type: ignore
         codigo = limpar_markdown(codigo)
         codigo = corrigir_assinatura(codigo)
         #validar_ast_comando(codigo)
